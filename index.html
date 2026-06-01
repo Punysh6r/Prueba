@@ -1,33 +1,242 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manuel</title>
+    <title>Anime Focus Station</title>
+    <!-- Fuentes estilo Cyberpunk / Tech -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- ESTILOS CSS GENERALES --- */
+        body {
+            background-color: #0d0e15; /* Fondo oscuro Akihabara */
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            letter-spacing: 1px;
+        }
 
-<link rel="stylesheet" href="style.css">
+        .dashboard-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* --- CABECERA --- */
+        .main-header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #161925;
+            padding-bottom: 20px;
+        }
+
+        .main-header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(to right, #00f0ff, #ff007f); /* Degradado Neón */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        /* --- SECCIÓN POMODORO --- */
+        .pomodoro-section {
+            background-color: #161925;
+            border: 1px solid #ff007f; /* Borde rosa neón */
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .timer-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            font-weight: 700;
+            color: #ff007f;
+            text-shadow: 0 0 20px rgba(255, 0, 127, 0.6);
+            margin-bottom: 25px;
+        }
+
+        /* --- BOTONES --- */
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #ff007f;
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4);
+        }
+
+        .btn-primary:hover {
+            background-color: #e60072;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 0, 127, 0.7);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: #00f0ff;
+            border: 2px solid #00f0ff;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 240, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 240, 255, 0.4);
+        }
+
+        /* --- DISEÑO EN CUADRÍCULA (GRID) --- */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-layout { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background-color: #161925;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .card h3 {
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: #00f0ff;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 10px;
+        }
+
+        /* --- OPCIONES DE AUDIO --- */
+        .audio-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .audio-btn {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid transparent;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: left;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+        }
+
+        .audio-btn:hover {
+            border-color: #00f0ff;
+            background-color: #0f172a;
+            padding-left: 15px;
+        }
+
+        /* --- LISTA DE MISIONES --- */
+        .quest-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .quest-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #1e293b;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .quest-item.completed {
+            color: #64748b;
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+    </style>
 </head>
 <body>
-<h1>H1 HOLA MUNDO</h1>
-<h2>H2 HOLA MUNDO</h2>
-<h3>H3 HOLA MUNDO</h3>
-<span>TEXTO SPAN HOLA MUNDO </span>
-<P>P TEXTO EJEMPLO</P>
 
+    <div class="dashboard-container">
+        
+        <!-- CABECERA -->
+        <header class="main-header">
+            <h1>STATION // FOCUS_MODE</h1>
+            <p class="subtitle">Completa tus misiones diarias, no te rindas.</p>
+        </header>
 
+        <!-- POMODORO -->
+        <main class="pomodoro-section">
+            <div class="timer-display" id="timer">25:00</div>
+            <div class="timer-controls">
+                <button class="btn btn-primary" id="start-btn">INICIAR ENFOQUE</button>
+                <button class="btn btn-secondary" id="pause-btn">PAUSAR</button>
+            </div>
+        </main>
 
+        <!-- SECCIONES INFERIORES -->
+        <section class="grid-layout">
+            
+            <!-- SINTONIZADOR DE AUDIO -->
+            <div class="card">
+                <h3>SINTONIZADOR AMBIENTAL</h3>
+                <div class="audio-options">
+                    <button class="audio-btn">🌧️ Tokyo Rain</button>
+                    <button class="audio-btn">🎧 Kyoto Lo-Fi</button>
+                    <button class="audio-btn">🔥 Shonen Hype</button>
+                </div>
+            </div>
 
-<a href="https://www.youtube.com/watch?v=V_RX6zNyfo4" class="boton_yt">
+            <!-- TABLÓN DE MISIONES -->
+            <div class="card">
+                <h3>TABLÓN DE MISIONES</h3>
+                <ul class="quest-list">
+                    <li class="quest-item"><span>⚔️ Estudiar 45 minutos sin distracciones</span></li>
+                    <li class="quest-item"><span>🧪 Organizar el repositorio de GitHub</span></li>
+                    <li class="quest-item completed"><span>🍱 Pausa para comer ramen</span></li>
+                </ul>
+            </div>
 
-    <button>Iniciar</button>
-</a>
-<a href="https://www.youtube.com/watch?v=iuP8K6pgBTI" class="boton">
+        </section>
 
-    <button>Iniciar</button>
-</a>
-
-
-
+    </div>
 
 </body>
 </html>

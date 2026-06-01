@@ -169,7 +169,49 @@
             background-color: #0f172a;
             padding-left: 15px;
         }
+/* --- ESTILOS DE LA BARRA DE MISIONES --- */
+        .quest-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
 
+        #new-quest-input {
+            flex: 1;
+            background-color: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 6px;
+            padding: 10px;
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        #new-quest-input:focus {
+            outline: none;
+            border-color: #00f0ff;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        #add-quest-btn {
+            background-color: #00f0ff;
+            color: #0d0e15;
+            border: none;
+            padding: 0 15px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        #add-quest-btn:hover {
+            background-color: #00d8e6;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+        }
         /* --- LISTA DE MISIONES --- */
         .quest-list {
             list-style: none;
@@ -228,7 +270,13 @@
             <!-- TABLÓN DE MISIONES -->
             <div class="card">
                 <h3>TABLÓN DE MISIONES</h3>
-                <ul class="quest-list">
+                
+                <div class="quest-input-container">
+                    <input type="text" id="new-quest-input" placeholder="Escribe una nueva misión..." maxlength="40">
+                    <button id="add-quest-btn">＋</button>
+                </div>
+
+                <ul class="quest-list" id="quest-list">
                     <li class="quest-item"><span>⚔️ Estudiar 45 minutos sin distracciones</span></li>
                     <li class="quest-item"><span>🧪 Organizar el repositorio de GitHub</span></li>
                     <li class="quest-item completed"><span>🍱 Pausa para comer ramen</span></li>
@@ -242,23 +290,19 @@
     <script>
         // --- 1. CONFIGURACIÓN DEL POMODORO ---
         let timer;
-        let timeLeft = 25 * 60; // 25 minutos expresados en segundos
+        let timeLeft = 25 * 60; 
         let isRunning = false;
 
         const timerDisplay = document.getElementById('timer');
         const startBtn = document.getElementById('start-btn');
         const pauseBtn = document.getElementById('pause-btn');
 
-        // Función para actualizar los números que se ven en pantalla
         function updateDisplay() {
             let minutes = Math.floor(timeLeft / 60);
             let seconds = timeLeft % 60;
-            
-            // Si el número es menor de 10, le añade un 0 delante (ej: 09 en vez de 9)
             timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        // Función que arranca la cuenta atrás
         startBtn.addEventListener('click', () => {
             if (!isRunning) {
                 isRunning = true;
@@ -267,57 +311,74 @@
                         timeLeft--;
                         updateDisplay();
                     } else {
-                        // Cuando llega a 00:00
                         clearInterval(timer);
                         isRunning = false;
                         alert('¡Misión cumplida! Tómate un breve descanso, guerrero.');
-                        timeLeft = 25 * 60; // Reinicia a 25 mins
+                        timeLeft = 25 * 60; 
                         updateDisplay();
                     }
-                }, 1000); // Se ejecuta cada 1 segundo (1000ms)
+                }, 1000); 
             }
         });
 
-        // Función que pausa el tiempo
         pauseBtn.addEventListener('click', () => {
             clearInterval(timer);
             isRunning = false;
         });
 
+        // --- 2. INTERACCIÓN Y CREACIÓN DE MISIONES ---
+        const questList = document.getElementById('quest-list');
+        const questInput = document.getElementById('new-quest-input');
+        const addQuestBtn = document.getElementById('add-quest-btn');
 
-        // --- 2. INTERACCIÓN DEL TABLÓN DE MISIONES ---
-        const questItems = document.querySelectorAll('.quest-item');
-
-        questItems.forEach(item => {
-            // Le añadimos un "escuchador" de clics a cada misión
+        // Función para hacer que una misión se tache al hacer clic
+        function linkQuestItem(item) {
             item.addEventListener('click', () => {
-                // Con toggle, si tiene la clase "completed" se la quita, y si no la tiene, se la pone
                 item.classList.toggle('completed');
             });
+        }
+
+        // Aplicar el clic a las misiones que ya existen por defecto
+        document.querySelectorAll('.quest-item').forEach(linkQuestItem);
+
+        // Lógica para añadir una nueva misión
+        function addMission() {
+            const text = questInput.value.trim();
+            if (text !== "") {
+                const li = document.createElement('li');
+                li.className = 'quest-item';
+                li.innerHTML = `<span>⚔️ ${text}</span>`;
+                
+                linkQuestItem(li); // Le añadimos la función de tacharse
+                questList.appendChild(li); // La metemos en la lista visual
+                questInput.value = ""; // Limpiamos el input
+            }
+        }
+
+        addQuestBtn.addEventListener('click', addMission);
+        // Permitir añadir pulsando la tecla "Enter"
+        questInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addMission();
         });
 
-        // --- 3. LOGICA DEL SINTONIZADOR DE AUDIO ---
-        // Creamos un único objeto de audio nativo de HTML5
-        const audioPlayer = new Audio();
-        audioPlayer.loop = true; // Hace que la música se repita infinitamente
 
-        // Definimos las URLs de la música (streams de audio libre de copyright)
+        // --- 3. LOGICA DEL SINTONIZADOR DE AUDIO (ARREGLADO) ---
+        const audioPlayer = new Audio();
+        audioPlayer.loop = true; 
+
         const tracks = {
-            'Tokyo Rain': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // Reemplazable por sonido de lluvia
-            'Kyoto Lo-Fi': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', // Música Lo-Fi chill
-            'Shonen Hype': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'  // Ritmo más enérgico
+            'Tokyo Rain': 'https://upload.wikimedia.org/wikipedia/commons/8/87/Rain_on_roof_looping.mp3', // URL Estable de lluvia real
+            'Kyoto Lo-Fi': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 
+            'Shonen Hype': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'  
         };
 
         const audioButtons = document.querySelectorAll('.audio-btn');
 
         audioButtons.forEach(button => {
             button.addEventListener('click', () => {
-                // Limpiamos el texto del botón para quedarnos solo con el nombre (ej: "Tokyo Rain")
-                // Quitamos el emoji del principio con un trim
                 const trackName = button.textContent.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
                 const trackUrl = tracks[trackName];
 
-                // Si el botón pulsado ya estaba activo, pausamos la música
                 if (button.classList.contains('active-audio')) {
                     audioPlayer.pause();
                     button.classList.remove('active-audio');
@@ -326,18 +387,15 @@
                     return;
                 }
 
-                // Quitamos el estilo activo a TODOS los botones antes de ponérselo al nuevo
                 audioButtons.forEach(btn => {
                     btn.classList.remove('active-audio');
                     btn.style.borderColor = 'transparent';
                     btn.style.boxShadow = 'none';
                 });
 
-                // Cambiamos la fuente del audio y reproducimos
                 audioPlayer.src = trackUrl;
-                audioPlayer.play();
+                audioPlayer.play().catch(err => console.log("Interacción requerida primero"));
 
-                // Iluminamos el botón actual con neón cian
                 button.classList.add('active-audio');
                 button.style.borderColor = '#00f0ff';
                 button.style.boxShadow = '0 0 15px rgba(0, 240, 255, 0.4)';

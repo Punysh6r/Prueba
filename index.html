@@ -161,7 +161,7 @@
             cursor: pointer;
             font-family: 'Rajdhani', sans-serif;
             font-size: 1.1rem;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
         }
 
         .audio-btn:hover {
@@ -293,6 +293,54 @@
             item.addEventListener('click', () => {
                 // Con toggle, si tiene la clase "completed" se la quita, y si no la tiene, se la pone
                 item.classList.toggle('completed');
+            });
+        });
+
+        // --- 3. LOGICA DEL SINTONIZADOR DE AUDIO ---
+        // Creamos un único objeto de audio nativo de HTML5
+        const audioPlayer = new Audio();
+        audioPlayer.loop = true; // Hace que la música se repita infinitamente
+
+        // Definimos las URLs de la música (streams de audio libre de copyright)
+        const tracks = {
+            'Tokyo Rain': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // Reemplazable por sonido de lluvia
+            'Kyoto Lo-Fi': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', // Música Lo-Fi chill
+            'Shonen Hype': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'  // Ritmo más enérgico
+        };
+
+        const audioButtons = document.querySelectorAll('.audio-btn');
+
+        audioButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Limpiamos el texto del botón para quedarnos solo con el nombre (ej: "Tokyo Rain")
+                // Quitamos el emoji del principio con un trim
+                const trackName = button.textContent.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
+                const trackUrl = tracks[trackName];
+
+                // Si el botón pulsado ya estaba activo, pausamos la música
+                if (button.classList.contains('active-audio')) {
+                    audioPlayer.pause();
+                    button.classList.remove('active-audio');
+                    button.style.borderColor = 'transparent';
+                    button.style.boxShadow = 'none';
+                    return;
+                }
+
+                // Quitamos el estilo activo a TODOS los botones antes de ponérselo al nuevo
+                audioButtons.forEach(btn => {
+                    btn.classList.remove('active-audio');
+                    btn.style.borderColor = 'transparent';
+                    btn.style.boxShadow = 'none';
+                });
+
+                // Cambiamos la fuente del audio y reproducimos
+                audioPlayer.src = trackUrl;
+                audioPlayer.play();
+
+                // Iluminamos el botón actual con neón cian
+                button.classList.add('active-audio');
+                button.style.borderColor = '#00f0ff';
+                button.style.boxShadow = '0 0 15px rgba(0, 240, 255, 0.4)';
             });
         });
     </script>

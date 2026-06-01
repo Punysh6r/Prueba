@@ -256,6 +256,94 @@
             text-decoration: line-through;
             opacity: 0.6;
         }
+    /* --- ESTILOS DEL CLICKER --- */
+        .clicker-body {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .power-counter {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            color: #ff007f;
+            text-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+            margin-bottom: 2px;
+        }
+
+        .kps-counter {
+            color: #64748b;
+            font-size: 1rem;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        #click-heavy-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff007f, #7928ca);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4);
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        #click-heavy-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 5px rgba(255, 0, 127, 0.2);
+        }
+
+        .upgrades-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .upgrade-btn {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .upgrade-btn:not(:disabled):hover {
+            border-color: #00f0ff;
+            background-color: #0f172a;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        .upgrade-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .upgrade-btn .price {
+            color: #00f0ff;
+            font-weight: bold;
+        }
+
+        /* Ajuste para que entren 3 columnas en pantallas grandes */
+        @media (min-width: 900px) {
+            .grid-layout {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -284,6 +372,26 @@
 
         <!-- SECCIONES INFERIORES -->
         <section class="grid-layout">
+            <div class="card clicker-card">
+                <h3>ENTRENAMIENTO SHONEN</h3>
+                <div class="clicker-body">
+                    <div class="power-counter">Poder: <span id="power-count">0</span></div>
+                    <div class="kps-counter"><span id="kps-count">0</span> Ki/seg</div>
+                    
+                    <button id="click-heavy-btn">⚡ ¡ENTRENAR! ⚡</button>
+                    
+                    <div class="upgrades-list">
+                        <button class="upgrade-btn" id="buy-clone" disabled>
+                            <span>👥 Clon de Sombra (+1 Ki/s)</span>
+                            <span class="price" id="clone-price">50 Ki</span>
+                        </button>
+                        <button class="upgrade-btn" id="buy-gravity" disabled>
+                            <span>🌌 Gravedad x10 (+5 Ki/s)</span>
+                            <span class="price" id="gravity-price">250 Ki</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
             
             <!-- SINTONIZADOR DE AUDIO -->
             <div class="card">
@@ -452,6 +560,69 @@
                 button.style.boxShadow = '0 0 15px rgba(0, 240, 255, 0.4)';
             });
         });
+    // --- 5. SISTEMA CLICKER (ENTRENAMIENTO SHONEN) ---
+        let power = 0;
+        let kps = 0; // Ki Por Segundo
+
+        // Precios iniciales y valores de las mejoras
+        let clonePrice = 50;
+        let gravityPrice = 250;
+
+        const powerCountDisplay = document.getElementById('power-count');
+        const kpsCountDisplay = document.getElementById('kps-count');
+        const clickBtn = document.getElementById('click-heavy-btn');
+        
+        const buyCloneBtn = document.getElementById('buy-clone');
+        const buyGravityBtn = document.getElementById('buy-gravity');
+        const clonePriceDisplay = document.getElementById('clone-price');
+        const gravityPriceDisplay = document.getElementById('gravity-price');
+
+        // Función para actualizar los textos e interfaz de la tienda
+        function updateClickerStore() {
+            powerCountDisplay.textContent = Math.floor(power);
+            kpsCountDisplay.textContent = kps;
+
+            // Desbloquear o bloquear botones según los fondos disponibles
+            buyCloneBtn.disabled = power < clonePrice;
+            buyGravityBtn.disabled = power < gravityPrice;
+        }
+
+        // Hacer clic manualmente
+        clickBtn.addEventListener('click', () => {
+            power += 1;
+            gainXP(1); // Opcional: ¡Te da 1 de XP por cada golpe/entrenamiento físico!
+            updateClickerStore();
+        });
+
+        // Comprar Clon de Sombra
+        buyCloneBtn.addEventListener('click', () => {
+            if (power >= clonePrice) {
+                power -= clonePrice;
+                kps += 1;
+                clonePrice = Math.floor(clonePrice * 1.15); // Sube el precio un 15%
+                clonePriceDisplay.textContent = `${clonePrice} Ki`;
+                updateClickerStore();
+            }
+        });
+
+        // Comprar Gravedad x10
+        buyGravityBtn.addEventListener('click', () => {
+            if (power >= gravityPrice) {
+                power -= gravityPrice;
+                kps += 5;
+                gravityPrice = Math.floor(gravityPrice * 1.15); // Sube el precio un 15%
+                gravityPriceDisplay.textContent = `${gravityPrice} Ki`;
+                updateClickerStore();
+            }
+        });
+
+        // BUCLE PRINCIPAL (Game Loop): Se ejecuta cada 1 segundo para sumar el KPS automático
+        setInterval(() => {
+            if (kps > 0) {
+                power += kps;
+                updateClickerStore();
+            }
+        }, 1000);
     </script>
 </body>
 </html>

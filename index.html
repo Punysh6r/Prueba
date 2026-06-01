@@ -424,7 +424,45 @@
     </div>
 <!-- --- LÓGICA JAVASCRIPT --- -->
     <script>
-        // --- 1. CONFIGURACIÓN DEL POMODORO ---
+        // ==========================================
+        // 0. CARGA DE DATOS DESDE LOCALSTORAGE
+        // ==========================================
+        // Intentamos recuperar los datos guardados; si no existen, inicializamos a los valores base
+        let currentXP = parseInt(localStorage.getItem('focus_xp')) || 0;
+        let currentLevel = parseInt(localStorage.getItem('focus_level')) || 1;
+        
+        let power = parseFloat(localStorage.getItem('clicker_power')) || 0;
+        let kps = parseInt(localStorage.getItem('clicker_kps')) || 0;
+        let clonePrice = parseInt(localStorage.getItem('price_clone')) || 50;
+        let gravityPrice = parseInt(localStorage.getItem('price_gravity')) || 250;
+
+        const xpNeeded = 300;
+
+        // Función global para guardar el estado actual
+        function saveGame() {
+            localStorage.setItem('focus_xp', currentXP);
+            localStorage.setItem('focus_level', currentLevel);
+            localStorage.setItem('clicker_power', power);
+            localStorage.setItem('clicker_kps', kps);
+            localStorage.setItem('price_clone', clonePrice);
+            localStorage.setItem('price_gravity', gravityPrice);
+            
+            // Guardar el estado de las misiones por defecto
+            const questStates = [];
+            document.querySelectorAll('.quest-item').forEach((item) => {
+                // Guardamos el texto de la misión y si está completada o no
+                questStates.push({
+                    text: item.querySelector('span').textContent,
+                    completed: item.classList.contains('completed')
+                });
+            });
+            localStorage.setItem('focus_quests', JSON.stringify(questStates));
+        }
+
+
+        // ==========================================
+        // 1. CONFIGURACIÓN DEL POMODORO
+        // ==========================================
         let timer;
         let timeLeft = 25 * 60; 
         let isRunning = false;
@@ -450,7 +488,7 @@
                         clearInterval(timer);
                         isRunning = false;
                         alert('¡Misión cumplida! +150 XP de bonificación por enfoque.');
-                        gainXP(150); // Recompensa por terminar el pomodoro
+                        gainXP(150); 
                         timeLeft = 25 * 60; 
                         updateDisplay();
                     }
@@ -463,13 +501,16 @@
             isRunning = false;
         });
 
-        // --- 2. GAMIFICACIÓN (XP Y NIVEL) ---
-        let currentXP = 0;
-        let currentLevel = 1;
-        const xpNeeded = 300;
 
+        // ==========================================
+        // 2. GAMIFICACIÓN (XP Y NIVEL)
+        // ==========================================
         const xpDisplay = document.getElementById('player-xp');
         const levelDisplay = document.getElementById('player-level');
+
+        // Renderizamos los valores cargados nada más abrir la web
+        xpDisplay.textContent = currentXP;
+        levelDisplay.textContent = currentLevel;
 
         function gainXP(amount) {
             currentXP += amount;
@@ -480,39 +521,60 @@
             }
             xpDisplay.textContent = currentXP;
             levelDisplay.textContent = currentLevel;
+            saveGame(); // Guardamos los cambios
         }
 
-        // --- 3. INTERACCIÓN Y CREACIÓN DE MISIONES ---
+
+        // ==========================================
+        // 3. INTERACCIÓN Y CREACIÓN DE MISIONES
+        // ==========================================
         const questList = document.getElementById('quest-list');
         const questInput = document.getElementById('new-quest-input');
         const addQuestBtn = document.getElementById('add-quest-btn');
 
         function linkQuestItem(item) {
+            // Evitamos duplicar eventos limpiando antes
+            item.removeAttribute('onclick'); 
             item.addEventListener('click', () => {
-                // Si la misión no estaba completada, al hacer clic sumamos experiencia
                 if (!item.classList.contains('completed')) {
-                    gainXP(100); // Da 100 de XP por misión cumplida
+                    gainXP(100); 
                 } else {
-                    // Si la desmarcas, te resta la XP (por si te equivocas)
                     currentXP = Math.max(0, currentXP - 100);
                     xpDisplay.textContent = currentXP;
                 }
                 item.classList.toggle('completed');
+                saveGame(); // Guardamos el estado tachado/desmarcado
             });
         }
 
-        document.querySelectorAll('.quest-item').forEach(linkQuestItem);
+        // Cargar misiones desde la memoria si existen
+        const savedQuests = JSON.parse(localStorage.getItem('focus_quests'));
+        if (savedQuests && savedQuests.length > 0) {
+            questList.innerHTML = ''; // Limpiamos las de por defecto
+            savedQuests.forEach(q => {
+                const li = document.createElement('li');
+                li.className = q.completed ? 'quest-item completed' : 'quest-item';
+                li.innerHTML = `<span>${q.text}</span>`;
+                linkQuestItem(li);
+                questList.appendChild(li);
+            });
+        } else {
+            // Si es la primera vez, enlazamos las misiones base de tu HTML
+            document.querySelectorAll('.quest-item').forEach(linkQuestItem);
+        }
 
         function addMission() {
             const text = questInput.value.trim();
             if (text !== "") {
                 const li = document.createElement('li');
                 li.className = 'quest-item';
+                // Añadimos el emoji de espada automáticamente si no lo lleva
                 li.innerHTML = `<span>⚔️ ${text}</span>`;
                 
                 linkQuestItem(li);
                 questList.appendChild(li);
                 questInput.value = "";
+                saveGame(); // Guardamos la nueva lista con la misión añadida
             }
         }
 
@@ -521,7 +583,78 @@
             if (e.key === 'Enter') addMission();
         });
 
-        // --- 4. LOGICA DEL SINTONIZADOR DE AUDIO ---
+
+        // ==========================================
+        // 4. SISTEMA CLICKER (ENTRENAMIENTO SHONEN)
+        // ==========================================
+        const powerCountDisplay = document.getElementById('power-count');
+        const kpsCountDisplay = document.getElementById('kps-count');
+        const clickBtn = document.getElementById('click-heavy-btn');
+        
+        const buyCloneBtn = document.getElementById('buy-clone');
+        const buyGravityBtn = document.getElementById('buy-gravity');
+        const clonePriceDisplay = document.getElementById('clone-price');
+        const gravityPriceDisplay = document.getElementById('gravity-price');
+
+        // Colocamos los precios cargados en la interfaz
+        clonePriceDisplay.textContent = `${clonePrice} Ki`;
+        gravityPriceDisplay.textContent = `${gravityPrice} Ki`;
+
+        function updateClickerStore() {
+            powerCountDisplay.textContent = Math.floor(power);
+            kpsCountDisplay.textContent = kps;
+            buyCloneBtn.disabled = power < clonePrice;
+            buyGravityBtn.disabled = power < gravityPrice;
+        }
+
+        clickBtn.addEventListener('click', () => {
+            power += 1;
+            gainXP(1); 
+            updateClickerStore();
+            // Para el clicker, guardamos en memoria cada 10 clics para no saturar el rendimiento
+            if (Math.floor(power) % 10 === 0) saveGame();
+        });
+
+        buyCloneBtn.addEventListener('click', () => {
+            if (power >= clonePrice) {
+                power -= clonePrice;
+                kps += 1;
+                clonePrice = Math.floor(clonePrice * 1.15); 
+                clonePriceDisplay.textContent = `${clonePrice} Ki`;
+                updateClickerStore();
+                saveGame();
+            }
+        });
+
+        buyGravityBtn.addEventListener('click', () => {
+            if (power >= gravityPrice) {
+                power -= gravityPrice;
+                kps += 5;
+                gravityPrice = Math.floor(gravityPrice * 1.15); 
+                gravityPriceDisplay.textContent = `${gravityPrice} Ki`;
+                updateClickerStore();
+                saveGame();
+            }
+        });
+
+        // Bucle automático de KPS (Suma Ki cada segundo)
+        setInterval(() => {
+            if (kps > 0) {
+                power += kps;
+                updateClickerStore();
+            }
+        }, 1000);
+
+        // Autoguardado en segundo plano de seguridad cada 10 segundos
+        setInterval(saveGame, 10000);
+        
+        // Render inicial del clicker al cargar la página
+        updateClickerStore();
+
+
+        // ==========================================
+        // 5. LÓGICA DEL SINTONIZADOR DE AUDIO
+        // ==========================================
         const audioPlayer = new Audio();
         audioPlayer.loop = true; 
 
@@ -560,69 +693,6 @@
                 button.style.boxShadow = '0 0 15px rgba(0, 240, 255, 0.4)';
             });
         });
-    // --- 5. SISTEMA CLICKER (ENTRENAMIENTO SHONEN) ---
-        let power = 0;
-        let kps = 0; // Ki Por Segundo
-
-        // Precios iniciales y valores de las mejoras
-        let clonePrice = 50;
-        let gravityPrice = 250;
-
-        const powerCountDisplay = document.getElementById('power-count');
-        const kpsCountDisplay = document.getElementById('kps-count');
-        const clickBtn = document.getElementById('click-heavy-btn');
-        
-        const buyCloneBtn = document.getElementById('buy-clone');
-        const buyGravityBtn = document.getElementById('buy-gravity');
-        const clonePriceDisplay = document.getElementById('clone-price');
-        const gravityPriceDisplay = document.getElementById('gravity-price');
-
-        // Función para actualizar los textos e interfaz de la tienda
-        function updateClickerStore() {
-            powerCountDisplay.textContent = Math.floor(power);
-            kpsCountDisplay.textContent = kps;
-
-            // Desbloquear o bloquear botones según los fondos disponibles
-            buyCloneBtn.disabled = power < clonePrice;
-            buyGravityBtn.disabled = power < gravityPrice;
-        }
-
-        // Hacer clic manualmente
-        clickBtn.addEventListener('click', () => {
-            power += 1;
-            gainXP(1); // Opcional: ¡Te da 1 de XP por cada golpe/entrenamiento físico!
-            updateClickerStore();
-        });
-
-        // Comprar Clon de Sombra
-        buyCloneBtn.addEventListener('click', () => {
-            if (power >= clonePrice) {
-                power -= clonePrice;
-                kps += 1;
-                clonePrice = Math.floor(clonePrice * 1.15); // Sube el precio un 15%
-                clonePriceDisplay.textContent = `${clonePrice} Ki`;
-                updateClickerStore();
-            }
-        });
-
-        // Comprar Gravedad x10
-        buyGravityBtn.addEventListener('click', () => {
-            if (power >= gravityPrice) {
-                power -= gravityPrice;
-                kps += 5;
-                gravityPrice = Math.floor(gravityPrice * 1.15); // Sube el precio un 15%
-                gravityPriceDisplay.textContent = `${gravityPrice} Ki`;
-                updateClickerStore();
-            }
-        });
-
-        // BUCLE PRINCIPAL (Game Loop): Se ejecuta cada 1 segundo para sumar el KPS automático
-        setInterval(() => {
-            if (kps > 0) {
-                power += kps;
-                updateClickerStore();
-            }
-        }, 1000);
     </script>
 </body>
 </html>

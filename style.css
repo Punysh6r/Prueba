@@ -10,3 +10,15 @@ border-radius: 10px;
 
 
 }
+
+.boton {
+
+background: red;
+color:antiquewhite;
+padding: 50px 40px;
+text-decoration: overline;
+border-radius:4cm;
+
+
+
+}

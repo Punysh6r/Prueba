@@ -183,6 +183,7 @@
             font-size: 1.1rem;
             display: flex;
             align-items: center;
+            cursor: pointer;
         }
 
         .quest-item.completed {
@@ -237,6 +238,63 @@
         </section>
 
     </div>
+<!-- --- LÓGICA JAVASCRIPT --- -->
+    <script>
+        // --- 1. CONFIGURACIÓN DEL POMODORO ---
+        let timer;
+        let timeLeft = 25 * 60; // 25 minutos expresados en segundos
+        let isRunning = false;
 
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+
+        // Función para actualizar los números que se ven en pantalla
+        function updateDisplay() {
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            
+            // Si el número es menor de 10, le añade un 0 delante (ej: 09 en vez de 9)
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Función que arranca la cuenta atrás
+        startBtn.addEventListener('click', () => {
+            if (!isRunning) {
+                isRunning = true;
+                timer = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft--;
+                        updateDisplay();
+                    } else {
+                        // Cuando llega a 00:00
+                        clearInterval(timer);
+                        isRunning = false;
+                        alert('¡Misión cumplida! Tómate un breve descanso, guerrero.');
+                        timeLeft = 25 * 60; // Reinicia a 25 mins
+                        updateDisplay();
+                    }
+                }, 1000); // Se ejecuta cada 1 segundo (1000ms)
+            }
+        });
+
+        // Función que pausa el tiempo
+        pauseBtn.addEventListener('click', () => {
+            clearInterval(timer);
+            isRunning = false;
+        });
+
+
+        // --- 2. INTERACCIÓN DEL TABLÓN DE MISIONES ---
+        const questItems = document.querySelectorAll('.quest-item');
+
+        questItems.forEach(item => {
+            // Le añadimos un "escuchador" de clics a cada misión
+            item.addEventListener('click', () => {
+                // Con toggle, si tiene la clase "completed" se la quita, y si no la tiene, se la pone
+                item.classList.toggle('completed');
+            });
+        });
+    </script>
 </body>
 </html>

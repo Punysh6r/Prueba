@@ -1,698 +1,1338 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anime Focus Station</title>
-    <!-- Fuentes estilo Cyberpunk / Tech -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
-    
-    <style>
-        /* --- ESTILOS CSS GENERALES --- */
-        body {
-            background-color: #0d0e15; /* Fondo oscuro Akihabara */
-            color: #e2e8f0;
-            font-family: 'Rajdhani', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            letter-spacing: 1px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>root@portfolio:~#</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e14;
+    --bg-soft: #0d1117;
+    --primary: #00ff41;
+    --primary-dim: #00b32c;
+    --secondary: #00d9ff;
+    --accent: #ff0080;
+    --warning: #ffb000;
+    --text: #c9d1d9;
+    --text-dim: #6e7681;
+    --border: #1f2937;
+    --glow: 0 0 10px rgba(0, 255, 65, 0.5);
+  }
 
-        .dashboard-container {
-            width: 100%;
-            max-width: 800px;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+  [data-theme="light"] {
+    --bg: #f6f8fa;
+    --bg-soft: #ffffff;
+    --primary: #0969da;
+    --primary-dim: #0550ae;
+    --secondary: #8250df;
+    --accent: #cf222e;
+    --warning: #bf8700;
+    --text: #1f2328;
+    --text-dim: #656d76;
+    --border: #d0d7de;
+    --glow: 0 0 10px rgba(9, 105, 218, 0.3);
+  }
 
-        /* --- CABECERA --- */
-        .main-header {
-            text-align: center;
-            margin-bottom: 40px;
-            border-bottom: 2px solid #161925;
-            padding-bottom: 20px;
-        }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .main-header h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.5rem;
-            margin: 0;
-            background: linear-gradient(to right, #00f0ff, #ff007f); /* Degradado Neón */
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
-        }
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    overflow: hidden;
+    transition: background 0.6s ease, color 0.6s ease;
+  }
 
-        .subtitle {
-            color: #64748b;
-            font-size: 1.1rem;
-            margin-top: 5px;
-            text-transform: uppercase;
-        }
-        /* --- ESTILOS DE GAMIFICACIÓN --- */
-        .player-stats {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.1rem;
-        }
+  /* SCANLINES CRT EFFECT */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.15),
+      rgba(0,0,0,0.15) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
 
-        .stat-item {
-            background: rgba(0, 240, 255, 0.05);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            padding: 5px 15px;
-            border-radius: 4px;
-            color: #00f0ff;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
-        }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%);
+    pointer-events: none;
+    z-index: 9998;
+  }
 
-        .stat-item strong {
-            color: #ff007f;
-            text-shadow: 0 0 5px rgba(255, 0, 127, 0.5);
-        }
+  /* TOP BAR */
+  .topbar {
+    height: 36px;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+    position: relative;
+    z-index: 10;
+  }
 
-        /* --- SECCIÓN POMODORO --- */
-        .pomodoro-section {
-            background-color: #161925;
-            border: 1px solid #ff007f; /* Borde rosa neón */
-            border-radius: 12px;
-            padding: 40px;
-            text-align: center;
-            box-shadow: 0 0 25px rgba(255, 0, 127, 0.15);
-            margin-bottom: 30px;
-        }
+  .traffic-lights { display: flex; gap: 8px; }
+  .light {
+    width: 12px; height: 12px; border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .light:hover { transform: scale(1.2); }
+  .light.red { background: #ff5f57; }
+  .light.yellow { background: #febc2e; }
+  .light.green { background: #28c840; }
 
-        .timer-display {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 5rem;
-            font-weight: 700;
-            color: #ff007f;
-            text-shadow: 0 0 20px rgba(255, 0, 127, 0.6);
-            margin-bottom: 25px;
-        }
+  .topbar-title {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
 
-        /* --- BOTONES --- */
-        .timer-controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
+  .topbar-actions { display: flex; gap: 8px; }
+  .topbar-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .topbar-btn:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+    box-shadow: var(--glow);
+  }
 
-        .btn {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            padding: 12px 30px;
-            font-size: 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+  /* STATS BAR */
+  .stats-bar {
+    position: fixed;
+    top: 36px;
+    right: 16px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: var(--text-dim);
+    z-index: 100;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .stats-bar .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 8px var(--primary);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
 
-        .btn-primary {
-            background-color: #ff007f;
-            color: white;
-            border: none;
-            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4);
-        }
+  /* TERMINAL */
+  .terminal {
+    height: calc(100vh - 36px);
+    padding: 24px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    position: relative;
+  }
 
-        .btn-primary:hover {
-            background-color: #e60072;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(255, 0, 127, 0.7);
-        }
+  .terminal::-webkit-scrollbar { width: 8px; }
+  .terminal::-webkit-scrollbar-track { background: transparent; }
+  .terminal::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+  .terminal::-webkit-scrollbar-thumb:hover { background: var(--primary-dim); }
 
-        .btn-secondary {
-            background-color: transparent;
-            color: #00f0ff;
-            border: 2px solid #00f0ff;
-            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.1);
-        }
+  .output {
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
 
-        .btn-secondary:hover {
-            background-color: rgba(0, 240, 255, 0.1);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(0, 240, 255, 0.4);
-        }
+  .line { margin-bottom: 4px; }
+  .prompt { color: var(--primary); font-weight: 600; }
+  .path { color: var(--secondary); }
+  .cmd { color: var(--text); }
+  .success { color: var(--primary); }
+  .error { color: var(--accent); }
+  .warning { color: var(--warning); }
+  .info { color: var(--secondary); }
+  .dim { color: var(--text-dim); }
+  .bold { font-weight: 700; }
+  .link {
+    color: var(--secondary);
+    text-decoration: underline;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .link:hover { color: var(--primary); text-shadow: var(--glow); }
 
-        /* --- DISEÑO EN CUADRÍCULA (GRID) --- */
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+  /* ASCII ART */
+  .ascii {
+    color: var(--primary);
+    font-size: 11px;
+    line-height: 1.1;
+    text-shadow: var(--glow);
+    margin: 8px 0;
+  }
 
-        @media (max-width: 600px) {
-            .grid-layout { grid-template-columns: 1fr; }
-        }
+  /* INPUT LINE */
+  .input-line {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+  .input-line .prompt { margin-right: 8px; }
+  .input-line .path { margin-right: 8px; }
 
-        .card {
-            background-color: #161925;
-            border: 1px solid #1e293b;
-            border-radius: 12px;
-            padding: 25px;
-        }
+  #cmd-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    caret-color: var(--primary);
+  }
 
-        .card h3 {
-            font-family: 'Orbitron', sans-serif;
-            margin-top: 0;
-            font-size: 1.1rem;
-            color: #00f0ff;
-            border-bottom: 1px solid #1e293b;
-            padding-bottom: 10px;
-        }
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: var(--primary);
+    animation: blink 1s infinite;
+    margin-left: 2px;
+    vertical-align: middle;
+  }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
 
-        /* --- OPCIONES DE AUDIO --- */
-        .audio-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+  /* SHARE BUTTON */
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary);
+    color: var(--bg);
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.2s;
+  }
+  .share-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 255, 65, 0.4);
+  }
 
-        .audio-btn {
-            background-color: #1e293b;
-            color: #e2e8f0;
-            border: 1px solid transparent;
-            padding: 10px;
-            border-radius: 6px;
-            text-align: left;
-            cursor: pointer;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-        }
+  /* MATRIX RAIN */
+  #matrix-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 9997;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  #matrix-canvas.active { opacity: 1; }
 
-        .audio-btn:hover {
-            border-color: #00f0ff;
-            background-color: #0f172a;
-            padding-left: 15px;
-        }
-/* --- ESTILOS DE LA BARRA DE MISIONES --- */
-        .quest-input-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+  /* SNAKE GAME */
+  #game-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 10000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  #game-overlay.active { display: flex; }
+  #game-canvas {
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.5);
+    background: #000;
+  }
+  .game-info {
+    color: var(--primary);
+    font-size: 16px;
+    text-shadow: var(--glow);
+  }
+  .game-close {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 8px 20px;
+    font-family: inherit;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .game-close:hover { background: var(--primary); color: #000; }
 
-        #new-quest-input {
-            flex: 1;
-            background-color: #0f172a;
-            border: 1px solid #1e293b;
-            border-radius: 6px;
-            padding: 10px;
-            color: #e2e8f0;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.1rem;
-            transition: all 0.3s;
-        }
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--bg-soft);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 13px;
+    box-shadow: var(--glow);
+    z-index: 10001;
+    transition: transform 0.3s ease;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
 
-        #new-quest-input:focus {
-            outline: none;
-            border-color: #00f0ff;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
-        }
+  /* KONAMI ACHIEVEMENT */
+  .achievement {
+    position: fixed;
+    top: 80px;
+    right: 16px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #000;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    box-shadow: 0 10px 40px rgba(0, 255, 65, 0.4);
+    transform: translateX(400px);
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 10002;
+  }
+  .achievement.show { transform: translateX(0); }
+  .achievement .title { font-size: 11px; opacity: 0.8; }
+  .achievement .name { font-size: 16px; margin-top: 4px; }
 
-        #add-quest-btn {
-            background-color: #00f0ff;
-            color: #0d0e15;
-            border: none;
-            padding: 0 15px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
-        }
+  /* TRANSITION OVERLAY */
+  #transition {
+    position: fixed;
+    inset: 0;
+    background: var(--primary);
+    z-index: 99999;
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+    pointer-events: none;
+  }
+  #transition.active {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
 
-        #add-quest-btn:hover {
-            background-color: #00d8e6;
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
-        }
-        /* --- LISTA DE MISIONES --- */
-        .quest-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .quest-item {
-            padding: 10px 0;
-            border-bottom: 1px solid #1e293b;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .quest-item.completed {
-            color: #64748b;
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-    /* --- ESTILOS DEL CLICKER --- */
-        .clicker-body {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .power-counter {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.6rem;
-            color: #ff007f;
-            text-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
-            margin-bottom: 2px;
-        }
-
-        .kps-counter {
-            color: #64748b;
-            font-size: 1rem;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-        }
-
-        #click-heavy-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #ff007f, #7928ca);
-            color: white;
-            border: none;
-            padding: 15px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4);
-            transition: all 0.2s ease;
-            margin-bottom: 20px;
-        }
-
-        #click-heavy-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 5px rgba(255, 0, 127, 0.2);
-        }
-
-        .upgrades-list {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .upgrade-btn {
-            background-color: #1e293b;
-            color: #e2e8f0;
-            border: 1px solid #334155;
-            padding: 10px;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        .upgrade-btn:not(:disabled):hover {
-            border-color: #00f0ff;
-            background-color: #0f172a;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
-        }
-
-        .upgrade-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .upgrade-btn .price {
-            color: #00f0ff;
-            font-weight: bold;
-        }
-
-        /* Ajuste para que entren 3 columnas en pantallas grandes */
-        @media (min-width: 900px) {
-            .grid-layout {
-                grid-template-columns: 1fr 1fr 1fr;
-            }
-        }
-    </style>
+  /* MOBILE */
+  @media (max-width: 768px) {
+    .terminal { padding: 12px; }
+    .output, .input-line, #cmd-input { font-size: 12px; }
+    .ascii { font-size: 7px; }
+    .stats-bar { top: 44px; font-size: 10px; padding: 6px 8px; gap: 8px; }
+    .topbar-title { display: none; }
+  }
+</style>
 </head>
 <body>
 
-    <div class="dashboard-container">
-        
-        <!-- CABECERA -->
-        <header class="main-header">
-            <h1>STATION // FOCUS_MODE</h1>
-            <p class="subtitle">Completa tus misiones diarias, no te rindas.</p>
-            
-            <div class="player-stats">
-                <span class="stat-item">RANK: <strong id="player-level">1</strong></span>
-                <span class="stat-item">XP: <strong id="player-xp">0</strong> / 300</span>
-            </div>
-        </header>
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="traffic-lights">
+    <div class="light red" onclick="showToast('Nice try 😏')"></div>
+    <div class="light yellow" onclick="toggleTheme()"></div>
+    <div class="light green" onclick="runCommand('help')"></div>
+  </div>
+  <div class="topbar-title">root@portfolio: ~ — zsh — 80×24</div>
+  <div class="topbar-actions">
+    <button class="topbar-btn" onclick="toggleTheme()">◐ THEME</button>
+    <button class="topbar-btn" onclick="sharePortfolio()">↗ SHARE</button>
+  </div>
+</div>
 
-        <!-- POMODORO -->
-        <main class="pomodoro-section">
-            <div class="timer-display" id="timer">25:00</div>
-            <div class="timer-controls">
-                <button class="btn btn-primary" id="start-btn">INICIAR ENFOQUE</button>
-                <button class="btn btn-secondary" id="pause-btn">PAUSAR</button>
-            </div>
-        </main>
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="dot"></div>
+  <span>⏱ <span id="timer">00:00</span></span>
+  <span>⌨ <span id="cmd-count">0</span> cmds</span>
+  <span id="achievement-count">🏆 0/5</span>
+</div>
 
-        <!-- SECCIONES INFERIORES -->
-        <section class="grid-layout">
-            <div class="card clicker-card">
-                <h3>ENTRENAMIENTO SHONEN</h3>
-                <div class="clicker-body">
-                    <div class="power-counter">Poder: <span id="power-count">0</span></div>
-                    <div class="kps-counter"><span id="kps-count">0</span> Ki/seg</div>
-                    
-                    <button id="click-heavy-btn">⚡ ¡ENTRENAR! ⚡</button>
-                    
-                    <div class="upgrades-list">
-                        <button class="upgrade-btn" id="buy-clone" disabled>
-                            <span>👥 Clon de Sombra (+1 Ki/s)</span>
-                            <span class="price" id="clone-price">50 Ki</span>
-                        </button>
-                        <button class="upgrade-btn" id="buy-gravity" disabled>
-                            <span>🌌 Gravedad x10 (+5 Ki/s)</span>
-                            <span class="price" id="gravity-price">250 Ki</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- SINTONIZADOR DE AUDIO -->
-            <div class="card">
-                <h3>SINTONIZADOR AMBIENTAL</h3>
-                <div class="audio-options">
-                    <button class="audio-btn">🌧️ Tokyo Rain</button>
-                    <button class="audio-btn">🎧 Kyoto Lo-Fi</button>
-                    <button class="audio-btn">🔥 Shonen Hype</button>
-                </div>
-            </div>
+<!-- TRANSITION OVERLAY -->
+<div id="transition"></div>
 
-            <!-- TABLÓN DE MISIONES -->
-            <div class="card">
-                <h3>TABLÓN DE MISIONES</h3>
-                
-                <div class="quest-input-container">
-                    <input type="text" id="new-quest-input" placeholder="Escribe una nueva misión..." maxlength="40">
-                    <button id="add-quest-btn">＋</button>
-                </div>
+<!-- MATRIX CANVAS -->
+<canvas id="matrix-canvas"></canvas>
 
-                <ul class="quest-list" id="quest-list">
-                    <li class="quest-item"><span>⚔️ Estudiar 45 minutos sin distracciones</span></li>
-                    <li class="quest-item"><span>🧪 Organizar el repositorio de GitHub</span></li>
-                    <li class="quest-item completed"><span>🍱 Pausa para comer ramen</span></li>
-                </ul>
-            </div>
+<!-- SNAKE GAME OVERLAY -->
+<div id="game-overlay">
+  <div class="game-info">🐍 SNAKE.EXE — SCORE: <span id="game-score">0</span></div>
+  <canvas id="game-canvas" width="400" height="400"></canvas>
+  <div class="game-info dim">Usá las flechas o WASD · ESC para salir</div>
+  <button class="game-close" onclick="closeGame()">[ CERRAR ]</button>
+</div>
 
-        </section>
+<!-- TERMINAL -->
+<div class="terminal" id="terminal">
+  <div class="output" id="output"></div>
+  <div class="input-line">
+    <span class="prompt">➜</span>
+    <span class="path">~</span>
+    <input type="text" id="cmd-input" autofocus autocomplete="off" spellcheck="false">
+  </div>
+</div>
 
-    </div>
-<!-- --- LÓGICA JAVASCRIPT --- -->
-    <script>
-        // ==========================================
-        // 0. CARGA DE DATOS DESDE LOCALSTORAGE
-        // ==========================================
-        // Intentamos recuperar los datos guardados; si no existen, inicializamos a los valores base
-        let currentXP = parseInt(localStorage.getItem('focus_xp')) || 0;
-        let currentLevel = parseInt(localStorage.getItem('focus_level')) || 1;
-        
-        let power = parseFloat(localStorage.getItem('clicker_power')) || 0;
-        let kps = parseInt(localStorage.getItem('clicker_kps')) || 0;
-        let clonePrice = parseInt(localStorage.getItem('price_clone')) || 50;
-        let gravityPrice = parseInt(localStorage.getItem('price_gravity')) || 250;
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-        const xpNeeded = 300;
+<!-- ACHIEVEMENT -->
+<div class="achievement" id="achievement">
+  <div class="title">🏆 LOGRO DESBLOQUEADO</div>
+  <div class="name" id="achievement-name"></div>
+</div>
 
-        // Función global para guardar el estado actual
-        function saveGame() {
-            localStorage.setItem('focus_xp', currentXP);
-            localStorage.setItem('focus_level', currentLevel);
-            localStorage.setItem('clicker_power', power);
-            localStorage.setItem('clicker_kps', kps);
-            localStorage.setItem('price_clone', clonePrice);
-            localStorage.setItem('price_gravity', gravityPrice);
-            
-            // Guardar el estado de las misiones por defecto
-            const questStates = [];
-            document.querySelectorAll('.quest-item').forEach((item) => {
-                // Guardamos el texto de la misión y si está completada o no
-                questStates.push({
-                    text: item.querySelector('span').textContent,
-                    completed: item.classList.contains('completed')
-                });
-            });
-            localStorage.setItem('focus_quests', JSON.stringify(questStates));
-        }
+<script>
+/* ============================================
+   CONFIGURACIÓN - PERSONALIZÁ TUS DATOS
+   ============================================ */
+const CONFIG = {
+  name: "Punysh3r",
+  role: "Full Stack Developer & Game Dev",
+  location: "Sevilla, España",
+  bio: [
+    "Desarrollador apasionado por crear experiencias web únicas.",
+    "Me especializo en interfaces interactivas, animaciones y juegos.",
+    "Amante del código limpio, el café fuerte y los bugs imposibles."
+  ],
+  skills: {
+    "Frontend": ["JavaScript", "React", "Vue", "TypeScript", "CSS3", "Three.js"],
+    "Backend": ["Node.js", "Python", "Express", "PostgreSQL", "MongoDB"],
+    "Tools": ["Git", "Docker", "AWS"],
+    "Gaming": ["Phaser.js", "Unity", "Canvas API", "WebGL"]
+  },
+  projects: [
+    {
+      id: "scroll-anim",
+      name: "Scroll Animation Engine",
+      tech: "HTML · Canvas · JS",
+      desc: "Motor de animaciones scroll-driven estilo Apple. Video frame-by-frame sincronizado con scroll.",
+      link: "#"
+    },
+    {
+      id: "terminal",
+      name: "Terminal Portfolio",
+      tech: "HTML · CSS · JS",
+      desc: "Este mismo portfolio que estás usando ahora. Meta, ¿no?",
+      link: "#"
+    },
+    {
+      id: "snake-ai",
+      name: "Snake con IA",
+      tech: "JavaScript · Canvas",
+      desc: "Juego Snake clásico con IA que aprende a jugar sola usando algoritmos genéticos.",
+      link: "#"
+    },
+    {
+      id: "3d-room",
+      name: "3D Interactive Room",
+      tech: "Three.js · WebGL",
+      desc: "Habitación 3D navegable donde cada objeto es un proyecto interactivo.",
+      link: "#"
+    }
+  ],
+  social: {
+    github: "https://github.com/tuusuario",
+    linkedin: "https://linkedin.com/in/tuusuario",
+    twitter: "https://twitter.com/tuusuario",
+    email: "tu@email.com"
+  },
+  contact: {
+    email: "tu@email.com",
+    available: true,
+    response: "Respondo en menos de 24hs"
+  }
+};
 
+/* ============================================
+   ESTADO GLOBAL
+   ============================================ */
+const state = {
+  history: [],
+  historyIdx: -1,
+  cmdCount: 0,
+  startTime: Date.now(),
+  achievements: new Set(),
+  theme: 'dark',
+  matrixActive: false,
+  gameActive: false
+};
 
-        // ==========================================
-        // 1. CONFIGURACIÓN DEL POMODORO
-        // ==========================================
-        let timer;
-        let timeLeft = 25 * 60; 
-        let isRunning = false;
+/* ============================================
+   AUDIO - SONIDOS SATISFACTORIOS (Web Audio API)
+   ============================================ */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        const timerDisplay = document.getElementById('timer');
-        const startBtn = document.getElementById('start-btn');
-        const pauseBtn = document.getElementById('pause-btn');
+function playSound(type) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
 
-        function updateDisplay() {
-            let minutes = Math.floor(timeLeft / 60);
-            let seconds = timeLeft % 60;
-            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
+  const now = audioCtx.currentTime;
 
-        startBtn.addEventListener('click', () => {
-            if (!isRunning) {
-                isRunning = true;
-                timer = setInterval(() => {
-                    if (timeLeft > 0) {
-                        timeLeft--;
-                        updateDisplay();
-                    } else {
-                        clearInterval(timer);
-                        isRunning = false;
-                        alert('¡Misión cumplida! +150 XP de bonificación por enfoque.');
-                        gainXP(150); 
-                        timeLeft = 25 * 60; 
-                        updateDisplay();
-                    }
-                }, 1000); 
-            }
+  if (type === 'type') {
+    osc.frequency.value = 800 + Math.random() * 200;
+    osc.type = 'square';
+    gain.gain.setValueAtTime(0.02, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+    osc.start(now);
+    osc.stop(now + 0.03);
+  } else if (type === 'enter') {
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    osc.start(now);
+    osc.stop(now + 0.15);
+  } else if (type === 'error') {
+    osc.frequency.setValueAtTime(300, now);
+    osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+    osc.type = 'sawtooth';
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+    osc.start(now);
+    osc.stop(now + 0.2);
+  } else if (type === 'achievement') {
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.frequency.value = freq;
+      o.type = 'sine';
+      const t = now + i * 0.1;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.15, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      o.start(t); o.stop(t + 0.3);
+    });
+  } else if (type === 'coin') {
+    osc.frequency.setValueAtTime(988, now);
+    osc.frequency.setValueAtTime(1319, now + 0.08);
+    osc.type = 'square';
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+    osc.start(now); osc.stop(now + 0.2);
+  }
+}
+
+/* ============================================
+   UTILIDADES
+   ============================================ */
+const $ = id => document.getElementById(id);
+const output = $('output');
+const input = $('cmd-input');
+const terminal = $('terminal');
+
+function scrollToBottom() {
+  terminal.scrollTop = terminal.scrollHeight;
+}
+
+function escapeHTML(str) {
+  return str.replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function appendLine(html, cls = '') {
+  const div = document.createElement('div');
+  div.className = 'line ' + cls;
+  div.innerHTML = html;
+  output.appendChild(div);
+  scrollToBottom();
+}
+
+function appendHTML(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  output.appendChild(div);
+  scrollToBottom();
+}
+
+function showToast(msg) {
+  const toast = $('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function unlockAchievement(name) {
+  if (state.achievements.has(name)) return;
+  state.achievements.add(name);
+  playSound('achievement');
+  const el = $('achievement');
+  $('achievement-name').textContent = name;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3500);
+  $('achievement-count').textContent = `🏆 ${state.achievements.size}/5`;
+}
+
+function formatTime(ms) {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const h = Math.floor(m / 60);
+  if (h > 0) return `${h}h ${m%60}m`;
+  return `${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+}
+
+/* ============================================
+   TIMER Y STATS
+   ============================================ */
+setInterval(() => {
+  $('timer').textContent = formatTime(Date.now() - state.startTime);
+  $('cmd-count').textContent = state.cmdCount;
+}, 1000);
+
+/* ============================================
+   TEMA CLARO/OSCURO CON TRANSICIÓN ÉPICA
+   ============================================ */
+function toggleTheme() {
+  const trans = $('transition');
+  trans.classList.add('active');
+  setTimeout(() => {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', state.theme);
+    setTimeout(() => trans.classList.remove('active'), 600);
+  }, 500);
+  playSound('coin');
+  unlockAchievement('🎨 Camaleón digital');
+}
+
+/* ============================================
+   KOMANDOS DISPONIBLES
+   ============================================ */
+const COMMANDS = {
+  help: {
+    desc: "Muestra esta ayuda",
+    run: () => {
+      appendLine('<span class="bold info">╔══════════════════════════════════════════╗</span>');
+      appendLine('<span class="bold info">║        COMANDOS DISPONIBLES              ║</span>');
+      appendLine('<span class="bold info">╚══════════════════════════════════════════╝</span>');
+      const cmds = [
+        ['help', 'Muestra esta ayuda'],
+        ['about / whoami', 'Sobre mí'],
+        ['skills', 'Mis tecnologías'],
+        ['projects / ls', 'Lista de proyectos'],
+        ['cat <proyecto>', 'Ver detalle de proyecto'],
+        ['contact', 'Información de contacto'],
+        ['social', 'Mis redes sociales'],
+        ['game', '🎮 Abrir mini juego Snake'],
+        ['matrix', '🟢 Activa el efecto Matrix'],
+        ['hack', '💀 Modo hacker activado'],
+        ['theme', 'Cambiar tema claro/oscuro'],
+        ['date', 'Fecha y hora actual'],
+        ['echo <texto>', 'Repite un texto'],
+        ['sudo <comando>', 'Intentar modo superusuario'],
+        ['clear / cls', 'Limpiar terminal'],
+        ['exit / quit', 'Cerrar sesión (¿?)'],
+        ['konami', '🤫 Pista secreta...']
+      ];
+      cmds.forEach(([c, d]) => {
+        appendLine(`  <span class="success bold">${c.padEnd(20)}</span><span class="dim">${d}</span>`);
+      });
+      appendLine('');
+      appendLine('<span class="dim">💡 Tip: Usá ↑ ↓ para navegar el historial · TAB para autocompletar</span>');
+    }
+  },
+
+  about: {
+    aliases: ['whoami', 'bio'],
+    desc: "Sobre mí",
+    run: () => {
+      const ascii = `
+ ██████╗ ██████╗ ██████╗ ███████╗    ██╗  ██╗ █████╗  ██████╗██╗  ██╗███████╗██████╗
+██╔════╝██╔═══██╗██╔══██╗██╔════╝    ██║  ██║██╔══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗
+██║     ██║   ██║██║  ██║█████╗      ███████║███████║██║     █████╔╝ █████╗  ██████╔╝
+██║     ██║   ██║██║  ██║██╔══╝      ██╔══██║██╔══██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗
+╚██████╗╚██████╔╝██████╔╝███████╗    ██║  ██║██║  ██║╚██████╗██║  ██╗███████╗██║  ██║
+ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝    ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝`.trim();
+      appendLine(`<pre class="ascii">${ascii}</pre>`);
+      appendLine('');
+      appendLine(`<span class="success bold">👤 ${CONFIG.name}</span>`);
+      appendLine(`<span class="info">💼 ${CONFIG.role}</span>`);
+      appendLine(`<span class="dim">📍 ${CONFIG.location}</span>`);
+      appendLine('');
+      CONFIG.bio.forEach(line => appendLine(`  ${line}`));
+      appendLine('');
+      appendLine('<span class="dim">Escribí <span class="success">skills</span> para ver mis tecnologías o <span class="success">projects</span> para ver mi trabajo.</span>');
+    }
+  },
+
+  skills: {
+    desc: "Mis tecnologías",
+    run: () => {
+      appendLine('<span class="bold info">⚡ STACK TECNOLÓGICO</span>');
+      appendLine('');
+      Object.entries(CONFIG.skills).forEach(([cat, items]) => {
+        appendLine(`<span class="success bold">▸ ${cat}</span>`);
+        const bars = items.map(s => {
+          const lvl = 70 + Math.floor(Math.random() * 30);
+          const filled = '█'.repeat(Math.floor(lvl / 10));
+          const empty = '░'.repeat(10 - Math.floor(lvl / 10));
+          return `    <span class="dim">${s.padEnd(15)}</span> <span class="success">${filled}</span><span class="dim">${empty}</span> ${lvl}%`;
         });
+        bars.forEach(b => appendLine(b));
+        appendLine('');
+      });
+    }
+  },
 
-        pauseBtn.addEventListener('click', () => {
-            clearInterval(timer);
-            isRunning = false;
-        });
-
-
-        // ==========================================
-        // 2. GAMIFICACIÓN (XP Y NIVEL)
-        // ==========================================
-        const xpDisplay = document.getElementById('player-xp');
-        const levelDisplay = document.getElementById('player-level');
-
-        // Renderizamos los valores cargados nada más abrir la web
-        xpDisplay.textContent = currentXP;
-        levelDisplay.textContent = currentLevel;
-
-        function gainXP(amount) {
-            currentXP += amount;
-            if (currentXP >= xpNeeded) {
-                currentXP -= xpNeeded;
-                currentLevel++;
-                alert(`¡LEVEL UP! Has ascendido al Rango ${currentLevel}. Tu poder aumenta.`);
-            }
-            xpDisplay.textContent = currentXP;
-            levelDisplay.textContent = currentLevel;
-            saveGame(); // Guardamos los cambios
+  projects: {
+    aliases: ['ls', 'proyectos'],
+    desc: "Lista de proyectos",
+    run: () => {
+      appendLine('<span class="bold info">📁 ~/projects/</span>');
+      appendLine('');
+      CONFIG.projects.forEach((p, i) => {
+        appendLine(`<span class="success bold">[${i+1}] ${p.name}</span> <span class="dim">(${p.tech})</span>`);
+        appendLine(`    ${p.desc}`);
+        if (p.link && p.link !== '#') {
+          appendLine(`    <span class="link" onclick="window.open('${p.link}','_blank')">🔗 Ver proyecto →</span>`);
         }
+        appendLine(`    <span class="dim">Ver más: </span><span class="info">cat ${p.id}</span>`);
+        appendLine('');
+      });
+      appendLine('<span class="dim">Total: <span class="success">' + CONFIG.projects.length + '</span> proyectos</span>');
+    }
+  },
 
+  cat: {
+    desc: "Ver detalle de proyecto",
+    run: (args) => {
+      if (!args[0]) {
+        appendLine('<span class="error">Error: Falta el nombre del proyecto</span>');
+        appendLine('<span class="dim">Uso: cat <nombre-proyecto></span>');
+        return;
+      }
+      const id = args[0].toLowerCase();
+      const p = CONFIG.projects.find(p => p.id === id || p.name.toLowerCase().includes(id));
+      if (!p) {
+        appendLine(`<span class="error">cat: ${args[0]}: No such file or directory</span>`);
+        playSound('error');
+        return;
+      }
+      appendLine(`<span class="success bold">══════════════════════════════════════</span>`);
+      appendLine(`<span class="success bold">📦 ${p.name}</span>`);
+      appendLine(`<span class="success bold">══════════════════════════════════════</span>`);
+      appendLine(`<span class="info">Tech:</span> ${p.tech}`);
+      appendLine(`<span class="info">Descripción:</span>`);
+      appendLine(`  ${p.desc}`);
+      appendLine('');
+      appendLine(`<span class="info">Estado:</span> <span class="success">● Online</span>`);
+      appendLine(`<span class="info">Última actualización:</span> ${new Date().toLocaleDateString('es-AR')}`);
+      if (p.link && p.link !== '#') {
+        appendLine(`<span class="link" onclick="window.open('${p.link}','_blank')">🔗 Abrir en nueva pestaña →</span>`);
+      }
+    }
+  },
 
-        // ==========================================
-        // 3. INTERACCIÓN Y CREACIÓN DE MISIONES
-        // ==========================================
-        const questList = document.getElementById('quest-list');
-        const questInput = document.getElementById('new-quest-input');
-        const addQuestBtn = document.getElementById('add-quest-btn');
+  contact: {
+    desc: "Información de contacto",
+    run: () => {
+      appendLine('<span class="bold info">📬 CONTACTO</span>');
+      appendLine('');
+      appendLine(`<span class="info">📧 Email:</span> <span class="link" onclick="window.location='mailto:${CONFIG.contact.email}'">${CONFIG.contact.email}</span>`);
+      appendLine(`<span class="info">📍 Ubicación:</span> ${CONFIG.location}`);
+      appendLine(`<span class="info">🟢 Estado:</span> <span class="success">${CONFIG.contact.available ? 'DISPONIBLE PARA TRABAJAR' : 'No disponible actualmente'}</span>`);
+      appendLine(`<span class="info">⚡ Respuesta:</span> ${CONFIG.contact.response}`);
+      appendLine('');
+      appendLine('<span class="dim">¿Te gustó lo que viste? ¡Hablemos!</span>');
+      appendButton('📧 Enviar email', `mailto:${CONFIG.contact.email}`);
+      appendShareButton();
+    }
+  },
 
-        function linkQuestItem(item) {
-            // Evitamos duplicar eventos limpiando antes
-            item.removeAttribute('onclick'); 
-            item.addEventListener('click', () => {
-                if (!item.classList.contains('completed')) {
-                    gainXP(100); 
-                } else {
-                    currentXP = Math.max(0, currentXP - 100);
-                    xpDisplay.textContent = currentXP;
-                }
-                item.classList.toggle('completed');
-                saveGame(); // Guardamos el estado tachado/desmarcado
-            });
+  social: {
+    desc: "Redes sociales",
+    run: () => {
+      appendLine('<span class="bold info">🌐 REDES SOCIALES</span>');
+      appendLine('');
+      Object.entries(CONFIG.social).forEach(([platform, url]) => {
+        const icons = { github: '🐙', linkedin: '💼', twitter: '🐦', email: '📧' };
+        appendLine(`  <span class="success">${icons[platform] || '🔗'}</span> <span class="info">${platform.padEnd(10)}</span> <span class="link" onclick="window.open('${url}','_blank')">${url}</span>`);
+      });
+    }
+  },
+
+  game: {
+    desc: "Mini juego Snake",
+    run: () => {
+      appendLine('<span class="success">🎮 Iniciando SNAKE.EXE...</span>');
+      playSound('coin');
+      setTimeout(() => openGame(), 500);
+    }
+  },
+
+  matrix: {
+    desc: "Efecto Matrix",
+    run: () => {
+      if (state.matrixActive) {
+        $('matrix-canvas').classList.remove('active');
+        state.matrixActive = false;
+        appendLine('<span class="warning">Matrix desactivado.</span>');
+      } else {
+        $('matrix-canvas').classList.add('active');
+        state.matrixActive = true;
+        startMatrix();
+        appendLine('<span class="success">🟢 Wake up, Neo...</span>');
+        appendLine('<span class="success">The Matrix has you...</span>');
+        unlockAchievement('💊 Pastilla roja');
+      }
+    }
+  },
+
+  hack: {
+    desc: "Modo hacker",
+    run: () => {
+      appendLine('<span class="success">💀 Iniciando modo hacker...</span>');
+      const lines = [
+        '[✓] Conectando a mainframe...',
+        '[✓] Bypass firewall... OK',
+        '[✓] Descifrando encriptación AES-256...',
+        '[✓] Accediendo a base de datos...',
+        '[✓] Extrayendo datos clasificados...',
+        '[!] ALERTA: Rastreo detectado',
+        '[✓] Borrando huellas...',
+        '[✓] Conexión establecida',
+        '',
+        '<span class="success bold">ACCESO CONCEDIDO</span>',
+        '',
+        'Bienvenido al sistema, hacker. 🕶️',
+        'Ahora sabés más del 90% de los "hackers" de películas.'
+      ];
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i >= lines.length) {
+          clearInterval(interval);
+          unlockAchievement('🕶️ Mr. Robot');
+          return;
         }
+        appendLine(lines[i]);
+        playSound('type');
+        i++;
+      }, 300);
+    }
+  },
 
-        // Cargar misiones desde la memoria si existen
-        const savedQuests = JSON.parse(localStorage.getItem('focus_quests'));
-        if (savedQuests && savedQuests.length > 0) {
-            questList.innerHTML = ''; // Limpiamos las de por defecto
-            savedQuests.forEach(q => {
-                const li = document.createElement('li');
-                li.className = q.completed ? 'quest-item completed' : 'quest-item';
-                li.innerHTML = `<span>${q.text}</span>`;
-                linkQuestItem(li);
-                questList.appendChild(li);
-            });
-        } else {
-            // Si es la primera vez, enlazamos las misiones base de tu HTML
-            document.querySelectorAll('.quest-item').forEach(linkQuestItem);
-        }
+  theme: {
+    desc: "Cambiar tema",
+    run: () => {
+      toggleTheme();
+      appendLine(`<span class="success">Tema cambiado a: ${state.theme === 'dark' ? '🌙 OSCURO' : '☀️ CLARO'}</span>`);
+    }
+  },
 
-        function addMission() {
-            const text = questInput.value.trim();
-            if (text !== "") {
-                const li = document.createElement('li');
-                li.className = 'quest-item';
-                // Añadimos el emoji de espada automáticamente si no lo lleva
-                li.innerHTML = `<span>⚔️ ${text}</span>`;
-                
-                linkQuestItem(li);
-                questList.appendChild(li);
-                questInput.value = "";
-                saveGame(); // Guardamos la nueva lista con la misión añadida
-            }
-        }
+  date: {
+    desc: "Fecha actual",
+    run: () => {
+      const now = new Date();
+      appendLine(`<span class="success">${now.toLocaleString('es-AR', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      })}</span>`);
+    }
+  },
 
-        addQuestBtn.addEventListener('click', addMission);
-        questInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addMission();
-        });
+  echo: {
+    desc: "Repetir texto",
+    run: (args) => {
+      appendLine(escapeHTML(args.join(' ')));
+    }
+  },
 
+  clear: {
+    aliases: ['cls'],
+    desc: "Limpiar terminal",
+    run: () => {
+      output.innerHTML = '';
+      playSound('enter');
+    }
+  },
 
-        // ==========================================
-        // 4. SISTEMA CLICKER (ENTRENAMIENTO SHONEN)
-        // ==========================================
-        const powerCountDisplay = document.getElementById('power-count');
-        const kpsCountDisplay = document.getElementById('kps-count');
-        const clickBtn = document.getElementById('click-heavy-btn');
-        
-        const buyCloneBtn = document.getElementById('buy-clone');
-        const buyGravityBtn = document.getElementById('buy-gravity');
-        const clonePriceDisplay = document.getElementById('clone-price');
-        const gravityPriceDisplay = document.getElementById('gravity-price');
+  exit: {
+    aliases: ['quit', 'logout'],
+    desc: "Cerrar sesión",
+    run: () => {
+      appendLine('<span class="warning">logout</span>');
+      appendLine('<span class="dim">Connection to portfolio closed.</span>');
+      appendLine('');
+      appendLine('<span class="error">ERROR: No podés irte tan pronto. 😢</span>');
+      appendLine('<span class="dim">Escribí <span class="success">help</span> para ver los comandos disponibles.</span>');
+      playSound('error');
+    }
+  },
 
-        // Colocamos los precios cargados en la interfaz
-        clonePriceDisplay.textContent = `${clonePrice} Ki`;
-        gravityPriceDisplay.textContent = `${gravityPrice} Ki`;
+  sudo: {
+    desc: "Modo superusuario",
+    run: (args) => {
+      if (!args.length) {
+        appendLine('<span class="error">sudo: faltó el comando</span>');
+        return;
+      }
+      const cmd = args[0];
+      const responses = {
+        'hire-me': '✅ Solicitud enviada. Te contactaremos pronto. 😉',
+        'rm-rf': '🔥 Nice try. Pero este sistema está protegido.',
+        'install': `✅ Instalando ${args.slice(1).join(' ')}... ¡Es broma! No tengo permisos reales 😅`,
+        'give-me-job': '🎉 ¡Contratado! (mentira, pero gracias por el intento)'
+      };
+      appendLine(`<span class="warning">[sudo] password for root: ********</span>`);
+      setTimeout(() => {
+        appendLine(responses[cmd] || `<span class="error">sudo: ${cmd}: command not found (pero intentá "sudo hire-me")</span>`);
+        if (cmd === 'hire-me') unlockAchievement('💼 Candidato premium');
+      }, 800);
+    }
+  },
 
-        function updateClickerStore() {
-            powerCountDisplay.textContent = Math.floor(power);
-            kpsCountDisplay.textContent = kps;
-            buyCloneBtn.disabled = power < clonePrice;
-            buyGravityBtn.disabled = power < gravityPrice;
-        }
+  konami: {
+    desc: "Pista secreta",
+    run: () => {
+      appendLine('<span class="success">🤫 PISTA SECRETA:</span>');
+      appendLine('<span class="dim">Probá con: ↑ ↑ ↓ ↓ ← → ← → B A</span>');
+      appendLine('<span class="dim">Es el famoso Konami Code. Los gamers saben. 🎮</span>');
+    }
+  },
 
-        clickBtn.addEventListener('click', () => {
-            power += 1;
-            gainXP(1); 
-            updateClickerStore();
-            // Para el clicker, guardamos en memoria cada 10 clics para no saturar el rendimiento
-            if (Math.floor(power) % 10 === 0) saveGame();
-        });
+  neofetch: {
+    desc: "Info del sistema",
+    run: () => {
+      const info = [
+        ['<span class="success bold">root@portfolio</span>', ''],
+        ['-----------------', ''],
+        ['<span class="info">OS:</span>', 'PortfolioOS 2026.1 x86_64'],
+        ['<span class="info">Host:</span>', 'Browser ' + navigator.userAgent.split(' ').pop()],
+        ['<span class="info">Kernel:</span>', 'JavaScript ES2026'],
+        ['<span class="info">Uptime:</span>', formatTime(Date.now() - state.startTime)],
+        ['<span class="info">Packages:</span>', CONFIG.projects.length + ' (projects)'],
+        ['<span class="info">Shell:</span>', 'zsh 5.9'],
+        ['<span class="info">Resolution:</span>', window.innerWidth + 'x' + window.innerHeight],
+        ['<span class="info">DE:</span>', 'Terminal Hacker'],
+        ['<span class="info">Theme:</span>', state.theme === 'dark' ? 'Cyberpunk [Dark]' : 'Clean [Light]'],
+        ['<span class="info">CPU:</span>', 'Your Brain @ ∞ GHz'],
+        ['<span class="info">Memory:</span>', '∞ MB / ∞ MB']
+      ];
+      info.forEach(([k, v]) => appendLine(`${k} ${v}`));
+    }
+  }
+};
 
-        buyCloneBtn.addEventListener('click', () => {
-            if (power >= clonePrice) {
-                power -= clonePrice;
-                kps += 1;
-                clonePrice = Math.floor(clonePrice * 1.15); 
-                clonePriceDisplay.textContent = `${clonePrice} Ki`;
-                updateClickerStore();
-                saveGame();
-            }
-        });
+function appendButton(label, href) {
+  const btn = document.createElement('button');
+  btn.className = 'share-btn';
+  btn.textContent = label;
+  btn.onclick = () => window.location = href;
+  output.appendChild(btn);
+  scrollToBottom();
+}
 
-        buyGravityBtn.addEventListener('click', () => {
-            if (power >= gravityPrice) {
-                power -= gravityPrice;
-                kps += 5;
-                gravityPrice = Math.floor(gravityPrice * 1.15); 
-                gravityPriceDisplay.textContent = `${gravityPrice} Ki`;
-                updateClickerStore();
-                saveGame();
-            }
-        });
+function appendShareButton() {
+  const btn = document.createElement('button');
+  btn.className = 'share-btn';
+  btn.innerHTML = '↗ Compartir mi resultado';
+  btn.onclick = sharePortfolio;
+  output.appendChild(btn);
+  scrollToBottom();
+}
 
-        // Bucle automático de KPS (Suma Ki cada segundo)
-        setInterval(() => {
-            if (kps > 0) {
-                power += kps;
-                updateClickerStore();
-            }
-        }, 1000);
+/* ============================================
+   EJECUTAR COMANDO
+   ============================================ */
+function runCommand(raw) {
+  const trimmed = raw.trim();
+  if (!trimmed) return;
 
-        // Autoguardado en segundo plano de seguridad cada 10 segundos
-        setInterval(saveGame, 10000);
-        
-        // Render inicial del clicker al cargar la página
-        updateClickerStore();
+  state.cmdCount++;
+  state.history.push(trimmed);
+  state.historyIdx = state.history.length;
 
+  // Mostrar el comando escrito
+  appendLine(`<span class="prompt">➜</span> <span class="path">~</span> <span class="cmd">${escapeHTML(trimmed)}</span>`);
 
-        // ==========================================
-        // 5. LÓGICA DEL SINTONIZADOR DE AUDIO
-        // ==========================================
-        const audioPlayer = new Audio();
-        audioPlayer.loop = true; 
+  const parts = trimmed.split(' ');
+  const cmd = parts[0].toLowerCase();
+  const args = parts.slice(1);
 
-        const tracks = {
-            'Tokyo Rain': 'https://upload.wikimedia.org/wikipedia/commons/8/87/Rain_on_roof_looping.mp3', 
-            'Kyoto Lo-Fi': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 
-            'Shonen Hype': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'  
-        };
+  // Buscar comando (incluyendo alias)
+  let command = COMMANDS[cmd];
+  if (!command) {
+    for (const key in COMMANDS) {
+      if (COMMANDS[key].aliases && COMMANDS[key].aliases.includes(cmd)) {
+        command = COMMANDS[key];
+        break;
+      }
+    }
+  }
 
-        const audioButtons = document.querySelectorAll('.audio-btn');
+  if (command) {
+    playSound('enter');
+    command.run(args);
 
-        audioButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const trackName = button.textContent.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
-                const trackUrl = tracks[trackName];
+    // Logros por cantidad de comandos
+    if (state.cmdCount === 10) unlockAchievement('⌨️ Explorador curioso');
+    if (state.cmdCount === 50) unlockAchievement('🔥 Power user');
+  } else {
+    playSound('error');
+    appendLine(`<span class="error">zsh: command not found: ${escapeHTML(cmd)}</span>`);
+    appendLine(`<span class="dim">Escribí <span class="success">help</span> para ver los comandos disponibles.</span>`);
+  }
+}
 
-                if (button.classList.contains('active-audio')) {
-                    audioPlayer.pause();
-                    button.classList.remove('active-audio');
-                    button.style.borderColor = 'transparent';
-                    button.style.boxShadow = 'none';
-                    return;
-                }
+window.runCommand = runCommand;
 
-                audioButtons.forEach(btn => {
-                    btn.classList.remove('active-audio');
-                    btn.style.borderColor = 'transparent';
-                    btn.style.boxShadow = 'none';
-                });
+/* ============================================
+   INPUT HANDLING
+   ============================================ */
+input.addEventListener('keydown', (e) => {
+  playSound('type');
 
-                audioPlayer.src = trackUrl;
-                audioPlayer.play().catch(err => console.log("Interacción requerida"));
+  if (e.key === 'Enter') {
+    runCommand(input.value);
+    input.value = '';
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (state.historyIdx > 0) {
+      state.historyIdx--;
+      input.value = state.history[state.historyIdx] || '';
+    }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (state.historyIdx < state.history.length - 1) {
+      state.historyIdx++;
+      input.value = state.history[state.historyIdx] || '';
+    } else {
+      state.historyIdx = state.history.length;
+      input.value = '';
+    }
+  } else if (e.key === 'Tab') {
+    e.preventDefault();
+    const val = input.value.toLowerCase();
+    const allCmds = Object.keys(COMMANDS).concat(
+      Object.values(COMMANDS).flatMap(c => c.aliases || [])
+    );
+    const match = allCmds.find(c => c.startsWith(val));
+    if (match) input.value = match;
+  } else if (e.key === 'l' && e.ctrlKey) {
+    e.preventDefault();
+    COMMANDS.clear.run();
+  }
+});
 
-                button.classList.add('active-audio');
-                button.style.borderColor = '#00f0ff';
-                button.style.boxShadow = '0 0 15px rgba(0, 240, 255, 0.4)';
-            });
-        });
-    </script>
+// Focus en terminal al hacer click
+terminal.addEventListener('click', () => input.focus());
+
+/* ============================================
+   KONAMI CODE
+   ============================================ */
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiIdx = 0;
+
+document.addEventListener('keydown', (e) => {
+  if (state.gameActive) return;
+  const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  if (key === KONAMI[konamiIdx]) {
+    konamiIdx++;
+    if (konamiIdx === KONAMI.length) {
+      konamiIdx = 0;
+      unlockAchievement('🎮 Konami Master');
+      appendLine('');
+      appendLine('<span class="success bold">🎉 ¡KONAMI CODE ACTIVADO! 🎉</span>');
+      appendLine('<span class="success">+30 vidas · God mode ON · Desbloqueaste un secreto:</span>');
+      appendLine('<span class="info">Escribí <span class="success">sudo hire-me</span> para una sorpresa 😉</span>');
+      playSound('achievement');
+      // Confetti effect
+      for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+          const confetti = document.createElement('div');
+          confetti.style.cssText = `
+            position: fixed;
+            width: 10px; height: 10px;
+            background: hsl(${Math.random()*360}, 100%, 50%);
+            left: ${Math.random()*100}vw;
+            top: -20px;
+            z-index: 99999;
+            pointer-events: none;
+          `;
+          document.body.appendChild(confetti);
+          confetti.animate({
+            transform: [`translateY(0) rotate(0deg)`, `translateY(100vh) rotate(720deg)`],
+            opacity: [1, 0]
+          }, { duration: 3000 + Math.random()*2000, easing: 'cubic-bezier(0.5, 0, 0.5, 1)' })
+          .onfinish = () => confetti.remove();
+        }, i * 30);
+      }
+    }
+  } else {
+    konamiIdx = 0;
+  }
+});
+
+/* ============================================
+   MATRIX RAIN
+   ============================================ */
+function startMatrix() {
+  const canvas = $('matrix-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF';
+  const fontSize = 14;
+  const columns = canvas.width / fontSize;
+  const drops = Array(Math.floor(columns)).fill(1);
+
+  function draw() {
+    if (!state.matrixActive) return;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = fontSize + 'px monospace';
+
+    for (let i = 0; i < drops.length; i++) {
+      const text = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ============================================
+   MINI JUEGO SNAKE
+   ============================================ */
+let snake, food, dir, score, gameLoop;
+
+function openGame() {
+  state.gameActive = true;
+  $('game-overlay').classList.add('active');
+  const canvas = $('game-canvas');
+  const ctx = canvas.getContext('2d');
+  const size = 20;
+  const cols = canvas.width / size;
+
+  snake = [{x: 10, y: 10}];
+  dir = {x: 1, y: 0};
+  score = 0;
+  food = spawnFood();
+  $('game-score').textContent = '0';
+
+  function spawnFood() {
+    let f;
+    do {
+      f = {x: Math.floor(Math.random()*cols), y: Math.floor(Math.random()*cols)};
+    } while (snake.some(s => s.x === f.x && s.y === f.y));
+    return f;
+  }
+
+  function draw() {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Grid
+    ctx.strokeStyle = 'rgba(0, 255, 65, 0.05)';
+    for (let i = 0; i < cols; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i*size, 0); ctx.lineTo(i*size, canvas.height);
+      ctx.moveTo(0, i*size); ctx.lineTo(canvas.width, i*size);
+      ctx.stroke();
+    }
+
+    // Food
+    ctx.fillStyle = '#ff0080';
+    ctx.shadowColor = '#ff0080';
+    ctx.shadowBlur = 15;
+    ctx.fillRect(food.x*size+2, food.y*size+2, size-4, size-4);
+
+    // Snake
+    ctx.shadowColor = '#00ff41';
+    snake.forEach((s, i) => {
+      ctx.fillStyle = i === 0 ? '#00ff41' : '#00b32c';
+      ctx.fillRect(s.x*size+1, s.y*size+1, size-2, size-2);
+    });
+    ctx.shadowBlur = 0;
+  }
+
+  function update() {
+    const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+
+    // Wrap around
+    if (head.x < 0) head.x = cols - 1;
+    if (head.x >= cols) head.x = 0;
+    if (head.y < 0) head.y = cols - 1;
+    if (head.y >= cols) head.y = 0;
+
+    // Self collision
+    if (snake.some(s => s.x === head.x && s.y === head.y)) {
+      gameOver();
+      return;
+    }
+
+    snake.unshift(head);
+
+    if (head.x === food.x && head.y === food.y) {
+      score += 10;
+      $('game-score').textContent = score;
+      playSound('coin');
+      food = spawnFood();
+    } else {
+      snake.pop();
+    }
+
+    draw();
+  }
+
+  function gameOver() {
+    clearInterval(gameLoop);
+    playSound('error');
+    ctx.fillStyle = 'rgba(0,0,0,0.8)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#ff0080';
+    ctx.font = 'bold 40px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2 - 20);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = '20px monospace';
+    ctx.fillText(`Score: ${score}`, canvas.width/2, canvas.height/2 + 20);
+    if (score >= 100) unlockAchievement('🐍 Snake Master');
+  }
+
+  gameLoop = setInterval(update, 100);
+  draw();
+}
+
+function closeGame() {
+  state.gameActive = false;
+  $('game-overlay').classList.remove('active');
+  clearInterval(gameLoop);
+  input.focus();
+}
+window.closeGame = closeGame;
+
+document.addEventListener('keydown', (e) => {
+  if (!state.gameActive) return;
+  const k = e.key.toLowerCase();
+  if ((k === 'arrowup' || k === 'w') && dir.y !== 1) dir = {x:0, y:-1};
+  else if ((k === 'arrowdown' || k === 's') && dir.y !== -1) dir = {x:0, y:1};
+  else if ((k === 'arrowleft' || k === 'a') && dir.x !== 1) dir = {x:-1, y:0};
+  else if ((k === 'arrowright' || k === 'd') && dir.x !== -1) dir = {x:1, y:0};
+  else if (k === 'escape') closeGame();
+  if (['arrowup','arrowdown','arrowleft','arrowright'].includes(k)) e.preventDefault();
+});
+
+/* ============================================
+   COMPARTIR
+   ============================================ */
+async function sharePortfolio() {
+  const data = {
+    title: `${CONFIG.name} - Portfolio Terminal`,
+    text: `¡Mirá este portfolio terminal hacker de ${CONFIG.name}! Pasé ${formatTime(Date.now() - state.startTime)} explorándolo 🚀`,
+    url: window.location.href
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(data);
+      unlockAchievement('📢 Embajador viral');
+    } catch(e) {}
+  } else {
+    try {
+      await navigator.clipboard.writeText(`${data.text}\n${data.url}`);
+      showToast('✓ Link copiado al portapapeles');
+      unlockAchievement('📢 Embajador viral');
+    } catch(e) {
+      showToast('No se pudo compartir');
+    }
+  }
+}
+window.sharePortfolio = sharePortfolio;
+
+/* ============================================
+   WELCOME MESSAGE
+   ============================================ */
+function welcome() {
+  const ascii = `
+ ██████╗ ██████╗ ██████╗ ███████╗
+██╔════╝██╔═══██╗██╔══██╗██╔════╝
+██║     ██║   ██║██║  ██║█████╗  
+██║     ██║   ██║██║  ██║██╔══╝  
+╚██████╗╚██████╔╝██████╔╝███████╗
+ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝`.trim();
+
+  appendLine(`<pre class="ascii">${ascii}</pre>`);
+  appendLine('');
+  appendLine(`<span class="success bold">Bienvenido al portfolio de ${CONFIG.name}</span> <span class="dim">v2026.1</span>`);
+  appendLine(`<span class="dim">Último login: ${new Date().toLocaleString('es-AR')} desde ${navigator.userAgent.split(' ').slice(-2).join(' ')}</span>`);
+  appendLine('');
+  appendLine(`<span class="info">👋 ¡Hola! Este es mi portfolio interactivo.</span>`);
+  appendLine(`<span class="info">Escribí <span class="success bold">help</span> para ver los comandos disponibles.</span>`);
+  appendLine('');
+  appendLine(`<span class="dim">⚡ Tips rápidos:</span>`);
+  appendLine(`<span class="dim">  • <span class="success">about</span>   → Conocerme</span>`);
+  appendLine(`<span class="dim">  • <span class="success">projects</span> → Ver mi trabajo</span>`);
+  appendLine(`<span class="dim">  • <span class="success">game</span>    → Jugar un mini juego 🎮</span>`);
+  appendLine(`<span class="dim">  • <span class="success">matrix</span>  → Activar modo Matrix 🟢</span>`);
+  appendLine('');
+  appendLine(`<span class="dim">🔎 Pista: Hay 5 logros ocultos para desbloquear...</span>`);
+  appendLine('');
+}
+
+// INIT
+welcome();
+input.focus();
+
+// Resize handlers
+window.addEventListener('resize', () => {
+  const canvas = $('matrix-canvas');
+  if (canvas) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+});
+</script>
+
 </body>
 </html>
